@@ -47,11 +47,16 @@ class MainActivity : AppCompatActivity() {
 
     // salvar o usuario preenchido no EditText utilizando uma SharedPreferences
     private fun saveUserLocal() {
-        //@TODO 3 - Persistir o usuario preenchido na editText com a SharedPref no listener do botao salvar
+        val preferences = getPreferences(MODE_PRIVATE)
+        with(preferences.edit()) {
+            putString(getString(R.string.nome_usuario_shared_preferences), nomeUsuario.text.toString())
+            apply()
+        }
     }
 
     private fun showUserName() {
-        //@TODO 4- depois de persistir o usuario exibir sempre as informacoes no EditText  se a sharedpref possuir algum valor, exibir no proprio editText o valor salvo
+        val preferences = getPreferences(MODE_PRIVATE)
+        nomeUsuario.setText(preferences.getString(getString(R.string.nome_usuario_shared_preferences), ""))
     }
 
     //Metodo responsavel por fazer a configuracao base do Retrofit
