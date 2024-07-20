@@ -3,6 +3,7 @@ package br.com.igorbag.githubsearch.ui
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
@@ -22,6 +23,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setupView()
+        setupListeners()
         showUserName()
         setupRetrofit()
         getAllReposByUserName()
@@ -29,12 +31,17 @@ class MainActivity : AppCompatActivity() {
 
     // Metodo responsavel por realizar o setup da view e recuperar os Ids do layout
     fun setupView() {
-        //@TODO 1 - Recuperar os Id's da tela para a Activity com o findViewById
+        nomeUsuario = findViewById(R.id.et_nome_usuario)
+        btnConfirmar = findViewById(R.id.btn_confirmar)
+        listaRepositories = findViewById(R.id.rv_lista_repositories)
     }
 
     //metodo responsavel por configurar os listeners click da tela
     private fun setupListeners() {
-        //@TODO 2 - colocar a acao de click do botao confirmar
+        btnConfirmar.setOnClickListener(View.OnClickListener {
+            saveUserLocal()
+            getAllReposByUserName()
+        })
     }
 
 
