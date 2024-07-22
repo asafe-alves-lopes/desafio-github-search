@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">GitHubSearch</string>
     <string name="nome_usuario">Nome do usuário</string>
-    <string name="nome_usuario_shared_preferences">nomeUsuario</string>
     <string name="confirmar">Confirmar</string>
+    <string name="nome_usuario_shared_preferences">nomeUsuario</string>
+    <string name="error_digite_nome_usuario">Digite um nome de usuário para continuar</string>
+    <string name="error_get_repositories">Erro ao obter repositórios</string>
 </resources>

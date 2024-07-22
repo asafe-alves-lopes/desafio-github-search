@@ -59,14 +59,20 @@ class MainActivity : AppCompatActivity() {
     private fun saveUserLocal() {
         val preferences = getPreferences(MODE_PRIVATE)
         with(preferences.edit()) {
-            putString(getString(R.string.nome_usuario_shared_preferences), nomeUsuario.text.toString())
+            putString(
+                getString(R.string.nome_usuario_shared_preferences), nomeUsuario.text.toString()
+            )
             apply()
         }
     }
 
     private fun showUserName() {
         val preferences = getPreferences(MODE_PRIVATE)
-        nomeUsuario.setText(preferences.getString(getString(R.string.nome_usuario_shared_preferences), ""))
+        nomeUsuario.setText(
+            preferences.getString(
+                getString(R.string.nome_usuario_shared_preferences), ""
+            )
+        )
     }
 
     //Metodo responsavel por fazer a configuracao base do Retrofit
@@ -81,33 +87,48 @@ class MainActivity : AppCompatActivity() {
 
     //Metodo responsavel por buscar todos os repositorios do usuario fornecido
     fun getAllReposByUserName() {
-        if(nomeUsuario.text.toString() != ""){
-            setLoading(true)
-            githubApi.getAllRepositoriesByUser(nomeUsuario.text.toString()).enqueue(object: Callback<List<Repository>>{
-                override fun onResponse(call: Call<List<Repository>>, response: Response<List<Repository>>) {
-                    val lista: List<Repository> = response.body() ?: listOf()
-                    setupAdapter(lista)
-                    if (lista.isEmpty())
-                        Toast.makeText(applicationContext, "Erro ao obter repositórios", Toast.LENGTH_SHORT).show()
+        if (nomeUsuario.text.toString() == "") {
+            setListAndShowError(error = getString(R.string.error_digite_nome_usuario))
+            return
+        }
+        setLoading(true)
+        githubApi.getAllRepositoriesByUser(nomeUsuario.text.toString())
+            .enqueue(object : Callback<List<Repository>> {
+                override fun onResponse(
+                    call: Call<List<Repository>>, response: Response<List<Repository>>
+                ) {
+                    setListAndShowError(
+                        list = response.body() ?: listOf(),
+                        error = if (response.body() == null) getString(R.string.error_get_repositories) else ""
+                    )
                 }
 
                 override fun onFailure(call: Call<List<Repository>>, error: Throwable) {
-                    setupAdapter(listOf())
-                    Toast.makeText(applicationContext, "Erro ao obter repositórios", Toast.LENGTH_SHORT).show()
+                    setListAndShowError(error = getString(R.string.error_get_repositories))
                 }
             })
+    }
+
+    fun setListAndShowError(list: List<Repository> = listOf(), error: String = "") {
+        setupAdapter(list)
+        if (error != "") {
+            Toast.makeText(
+                applicationContext, error, Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
     // Metodo responsavel por realizar a configuracao do adapter
     fun setupAdapter(list: List<Repository>) {
         listaRepositories.layoutManager = LinearLayoutManager(this)
-        listaRepositories.adapter = RepositoryAdapter(list, shareRepository = ::shareRepositoryLink, openBrowser = ::openBrowser)
+        listaRepositories.adapter = RepositoryAdapter(
+            list, shareRepository = ::shareRepositoryLink, openBrowser = ::openBrowser
+        )
         setLoading(false)
     }
 
-    fun setLoading(carregando:Boolean){
-        viewCarregando.visibility = if(carregando) View.VISIBLE else View.GONE
+    fun setLoading(carregando: Boolean) {
+        viewCarregando.visibility = if (carregando) View.VISIBLE else View.GONE
     }
 
     // Metodo responsavel por compartilhar o link do repositorio selecionado
@@ -126,8 +147,7 @@ class MainActivity : AppCompatActivity() {
     fun openBrowser(urlRepository: String) {
         startActivity(
             Intent(
-                Intent.ACTION_VIEW,
-                Uri.parse(urlRepository)
+                Intent.ACTION_VIEW, Uri.parse(urlRepository)
             )
         )
 
