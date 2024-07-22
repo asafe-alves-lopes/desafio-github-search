@@ -22,11 +22,11 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class MainActivity : AppCompatActivity() {
 
-    lateinit var nomeUsuario: EditText
-    lateinit var btnConfirmar: Button
-    lateinit var listaRepositories: RecyclerView
+    lateinit var userName: EditText
+    lateinit var btnConfirm: Button
+    lateinit var repositoryList: RecyclerView
     lateinit var githubApi: GitHubService
-    lateinit var viewCarregando: View
+    lateinit var loadingView: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,18 +40,18 @@ class MainActivity : AppCompatActivity() {
 
     // Metodo responsavel por realizar o setup da view e recuperar os Ids do layout
     fun setupView() {
-        nomeUsuario = findViewById(R.id.et_nome_usuario)
-        btnConfirmar = findViewById(R.id.btn_confirmar)
-        listaRepositories = findViewById(R.id.rv_lista_repositories)
-        viewCarregando = findViewById(R.id.view_carregando)
+        userName = findViewById(R.id.et_user_name)
+        btnConfirm = findViewById(R.id.btn_confirm)
+        repositoryList = findViewById(R.id.rv_repository_list)
+        loadingView = findViewById(R.id.view_loading)
     }
 
     //metodo responsavel por configurar os listeners click da tela
     private fun setupListeners() {
-        btnConfirmar.setOnClickListener(View.OnClickListener {
+        btnConfirm.setOnClickListener {
             saveUserLocal()
             getAllReposByUserName()
-        })
+        }
     }
 
 
@@ -60,7 +60,7 @@ class MainActivity : AppCompatActivity() {
         val preferences = getPreferences(MODE_PRIVATE)
         with(preferences.edit()) {
             putString(
-                getString(R.string.nome_usuario_shared_preferences), nomeUsuario.text.toString()
+                getString(R.string.user_name_shared_preferences), userName.text.toString()
             )
             apply()
         }
@@ -68,9 +68,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun showUserName() {
         val preferences = getPreferences(MODE_PRIVATE)
-        nomeUsuario.setText(
+        userName.setText(
             preferences.getString(
-                getString(R.string.nome_usuario_shared_preferences), ""
+                getString(R.string.user_name_shared_preferences), ""
             )
         )
     }
@@ -87,24 +87,24 @@ class MainActivity : AppCompatActivity() {
 
     //Metodo responsavel por buscar todos os repositorios do usuario fornecido
     fun getAllReposByUserName() {
-        if (nomeUsuario.text.toString() == "") {
-            setListAndShowError(error = getString(R.string.error_digite_nome_usuario))
+        if (userName.text.toString() == "") {
+            setListAndShowError(error = getString(R.string.error_enter_user_name))
             return
         }
         setLoading(true)
-        githubApi.getAllRepositoriesByUser(nomeUsuario.text.toString())
+        githubApi.getAllRepositoriesByUser(userName.text.toString())
             .enqueue(object : Callback<List<Repository>> {
                 override fun onResponse(
                     call: Call<List<Repository>>, response: Response<List<Repository>>
                 ) {
                     setListAndShowError(
                         list = response.body() ?: listOf(),
-                        error = if (response.body() == null) getString(R.string.error_get_repositories) else ""
+                        error = if (response.body() == null) getString(R.string.error_get_repository_list) else ""
                     )
                 }
 
                 override fun onFailure(call: Call<List<Repository>>, error: Throwable) {
-                    setListAndShowError(error = getString(R.string.error_get_repositories))
+                    setListAndShowError(error = getString(R.string.error_get_repository_list))
                 }
             })
     }
@@ -120,15 +120,15 @@ class MainActivity : AppCompatActivity() {
 
     // Metodo responsavel por realizar a configuracao do adapter
     fun setupAdapter(list: List<Repository>) {
-        listaRepositories.layoutManager = LinearLayoutManager(this)
-        listaRepositories.adapter = RepositoryAdapter(
+        repositoryList.layoutManager = LinearLayoutManager(this)
+        repositoryList.adapter = RepositoryAdapter(
             list, shareRepository = ::shareRepositoryLink, openBrowser = ::openBrowser
         )
         setLoading(false)
     }
 
-    fun setLoading(carregando: Boolean) {
-        viewCarregando.visibility = if (carregando) View.VISIBLE else View.GONE
+    fun setLoading(isLoading: Boolean) {
+        loadingView.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
     // Metodo responsavel por compartilhar o link do repositorio selecionado

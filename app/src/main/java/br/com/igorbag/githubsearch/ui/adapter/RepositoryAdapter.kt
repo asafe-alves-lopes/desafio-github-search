@@ -10,7 +10,7 @@ import br.com.igorbag.githubsearch.R
 import br.com.igorbag.githubsearch.domain.Repository
 
 class RepositoryAdapter(
-    private val repositories: List<Repository>,
+    private val repositoryList: List<Repository>,
     private val shareRepository: (url: String) -> Unit,
     private val openBrowser: (url: String) -> Unit
 ) :
@@ -25,25 +25,25 @@ class RepositoryAdapter(
 
     // Pega o conteudo da view e troca pela informacao de item de uma lista
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        repositories[position].let { repository ->
-            holder.tvNomeRepositorio.text = repository.name
+        repositoryList[position].let { repository ->
+            holder.tvRepositoryName.text = repository.name
 
-            holder.tvNomeRepositorio.setOnClickListener {
+            holder.tvRepositoryName.setOnClickListener {
                 openBrowser(repository.htmlUrl)
             }
 
-            holder.ivCompartilhar.setOnClickListener {
+            holder.ivShare.setOnClickListener {
                 shareRepository(repository.htmlUrl)
             }
         }
     }
 
     // Pega a quantidade de repositorios da lista
-    override fun getItemCount(): Int = repositories.size
+    override fun getItemCount(): Int = repositoryList.size
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val tvNomeRepositorio: TextView = view.findViewById(R.id.tv_nome_do_repositorio)
-        val ivCompartilhar: ImageView = view.findViewById(R.id.iv_compartilhar)
+        val tvRepositoryName: TextView = view.findViewById(R.id.tv_repository_name)
+        val ivShare: ImageView = view.findViewById(R.id.iv_share)
     }
 }
 
