@@ -6,11 +6,14 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import br.com.igorbag.githubsearch.R
 import br.com.igorbag.githubsearch.data.GitHubService
 import br.com.igorbag.githubsearch.domain.Repository
+import br.com.igorbag.githubsearch.ui.adapter.RepositoryAdapter
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -23,6 +26,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var btnConfirmar: Button
     lateinit var listaRepositories: RecyclerView
     lateinit var githubApi: GitHubService
+    lateinit var viewCarregando: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +43,7 @@ class MainActivity : AppCompatActivity() {
         nomeUsuario = findViewById(R.id.et_nome_usuario)
         btnConfirmar = findViewById(R.id.btn_confirmar)
         listaRepositories = findViewById(R.id.rv_lista_repositories)
+        viewCarregando = findViewById(R.id.view_carregando)
     }
 
     //metodo responsavel por configurar os listeners click da tela
@@ -77,27 +82,33 @@ class MainActivity : AppCompatActivity() {
     //Metodo responsavel por buscar todos os repositorios do usuario fornecido
     fun getAllReposByUserName() {
         if(nomeUsuario.text.toString() != ""){
+            setLoading(true)
             githubApi.getAllRepositoriesByUser(nomeUsuario.text.toString()).enqueue(object: Callback<List<Repository>>{
                 override fun onResponse(call: Call<List<Repository>>, response: Response<List<Repository>>) {
-                    //@TODO 13 - carregar lista (setupAdapter)
+                    val lista: List<Repository> = response.body() ?: listOf()
+                    setupAdapter(lista)
+                    if (lista.isEmpty())
+                        Toast.makeText(applicationContext, "Erro ao obter repositórios", Toast.LENGTH_SHORT).show()
                 }
 
                 override fun onFailure(call: Call<List<Repository>>, error: Throwable) {
-                    //@TODO 14 - limpar lista e mostrar erro
+                    setupAdapter(listOf())
+                    Toast.makeText(applicationContext, "Erro ao obter repositórios", Toast.LENGTH_SHORT).show()
                 }
-
             })
         }
     }
 
     // Metodo responsavel por realizar a configuracao do adapter
     fun setupAdapter(list: List<Repository>) {
-        /*
-            @TODO 7 - Implementar a configuracao do Adapter , construir o adapter e instancia-lo
-            passando a listagem dos repositorios
-         */
+        listaRepositories.layoutManager = LinearLayoutManager(this)
+        listaRepositories.adapter = RepositoryAdapter(list)
+        setLoading(false)
     }
 
+    fun setLoading(carregando:Boolean){
+        viewCarregando.visibility = if(carregando) View.VISIBLE else View.GONE
+    }
 
     // Metodo responsavel por compartilhar o link do repositorio selecionado
     // @Todo 11 - Colocar esse metodo no click do share item do adapter
