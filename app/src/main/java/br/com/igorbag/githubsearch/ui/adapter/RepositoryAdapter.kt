@@ -9,11 +9,12 @@ import androidx.recyclerview.widget.RecyclerView
 import br.com.igorbag.githubsearch.R
 import br.com.igorbag.githubsearch.domain.Repository
 
-class RepositoryAdapter(private val repositories: List<Repository>) :
+class RepositoryAdapter(
+    private val repositories: List<Repository>,
+    private val shareRepository: (url: String) -> Unit,
+    private val openBrowser: (url: String) -> Unit
+) :
     RecyclerView.Adapter<RepositoryAdapter.ViewHolder>() {
-
-    var carItemLister: (Repository) -> Unit = {}
-    var btnShareLister: (Repository) -> Unit = {}
 
     // Cria uma nova view
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -24,8 +25,16 @@ class RepositoryAdapter(private val repositories: List<Repository>) :
 
     // Pega o conteudo da view e troca pela informacao de item de uma lista
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        repositories[position].let {
-            holder.tvNomeRepositorio.text = it.name
+        repositories[position].let { repository ->
+            holder.tvNomeRepositorio.text = repository.name
+
+            holder.tvNomeRepositorio.setOnClickListener {
+                openBrowser(repository.htmlUrl)
+            }
+
+            holder.ivCompartilhar.setOnClickListener {
+                shareRepository(repository.htmlUrl)
+            }
         }
     }
 
